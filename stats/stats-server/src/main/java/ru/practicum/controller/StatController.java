@@ -1,51 +1,44 @@
 package ru.practicum.controller;
 
-
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.constants.DataTransferConvention;
 import ru.practicum.dto.EndpointHit;
 import ru.practicum.dto.ViewStats;
-import ru.practicum.service.HitService;
+import ru.practicum.service.StatService;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@Slf4j
+@Validated
 @RequiredArgsConstructor
+@Slf4j
 public class StatController {
+    private final StatService statService;
 
-    private final HitService hitService;
+    @PostMapping("/hit")
+    public ResponseEntity<EndpointHit> registerHit(@RequestBody @Valid EndpointHit endpointHit) {
+        log.info("Registering hit: {}", endpointHit);
+        return new ResponseEntity<>(statService.registerHit(endpointHit), HttpStatus.CREATED);
+    }
 
     @GetMapping("/stats")
     public ResponseEntity<List<ViewStats>> getStats(
-            @RequestParam("start") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-            @RequestParam("end") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
-            @RequestParam(value = "uris", required = false) List<String> uris,
-            @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
-        log.info("Вызван метода с запросом статистики в период с {} до {}, для следующих серверов {}. " +
-                "Выбраны только уникальные значения - {}", start, end, uris, unique);
-        // Получение статистики
-        List<ViewStats> stats = hitService.getStats(start, end, uris, unique);
-
-        // Логирование возвращаемого значения
-        log.info("Статистика получена: {}", stats);
-
-        return ResponseEntity.status(HttpStatus.OK).body(stats);
-    }
-
-    @PostMapping("/hit")
-    @Transactional
-    public ResponseEntity<EndpointHit> addHit(@RequestBody EndpointHit endpointHit) {
-        log.info("Вызван метод добавления записи в статистику {}", endpointHit);
-        // Логирование результата
-        EndpointHit status = hitService.addHit(endpointHit);
-        log.info("Результат добавления записи: {}", status);
-        return ResponseEntity.status(HttpStatus.CREATED).body(status);
+            @RequestParam("start") @DateTimeFormat(pattern = DataTransferConvention.DATE_TIME_PATTERN) LocalDateTime start,
+            @RequestParam("end") @DateTimeFormat(pattern = DataTransferConvention.DATE_TIME_PATTERN) LocalDateTime end,
+            @RequestParam(value = "uris", required = false) String[] uris,
+            @RequestParam(value = "unique", defaultValue = "false")
+            Boolean unique) {
+        if (start.isAfter(end)) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(statService.getHits(start, end, uris, unique), HttpStatus.OK);
     }
 }

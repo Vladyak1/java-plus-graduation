@@ -11,7 +11,7 @@ import ru.practicum.dto.ViewStats;
 
 import java.util.List;
 
-@FeignClient(value = "stats-client", url = "${ewm-stats-service.url}")
+@FeignClient(value = "stats-client")
 public interface StatsClient {
 
     @PostMapping("/hit")
