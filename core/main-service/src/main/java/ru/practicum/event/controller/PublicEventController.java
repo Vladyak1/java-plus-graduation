@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.Formatter;
 import ru.practicum.event.dto.EventFullDto;
 import ru.practicum.event.dto.EventPublicParams;
 import ru.practicum.event.dto.EventShortDto;
@@ -19,7 +18,10 @@ import ru.practicum.event.service.EventService;
 import ru.practicum.stat.service.StatsService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static ru.practicum.constants.DataTransferConvention.DATE_TIME_PATTERN;
 
 @RestController
 @Validated
@@ -44,9 +46,9 @@ public class PublicEventController {
             @Positive @RequestParam(required = false, defaultValue = "10") int size,
             HttpServletRequest request
     ) {
-        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart, Formatter.getFormatter())
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(DATE_TIME_PATTERN))
                 : LocalDateTime.now();
-        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd, Formatter.getFormatter())
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(DATE_TIME_PATTERN))
                 : LocalDateTime.now().plusYears(20);
 
         EventPublicParams eventPublicParams = EventPublicParams.builder()

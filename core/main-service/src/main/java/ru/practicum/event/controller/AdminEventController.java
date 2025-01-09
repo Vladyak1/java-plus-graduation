@@ -12,7 +12,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.Formatter;
 import ru.practicum.event.dto.EventAdminParams;
 import ru.practicum.event.dto.EventLongDto;
 import ru.practicum.event.dto.UpdateEventAdminRequest;
@@ -20,7 +19,10 @@ import ru.practicum.event.model.enums.EventState;
 import ru.practicum.event.service.EventService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static ru.practicum.constants.DataTransferConvention.DATE_TIME_PATTERN;
 
 @RestController
 @Validated
@@ -43,9 +45,9 @@ public class AdminEventController {
 
         int page = from / size;
         Sort sort = Sort.by(Sort.Direction.ASC, "id");
-        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart, Formatter.getFormatter())
+        LocalDateTime start = (rangeStart != null) ? LocalDateTime.parse(rangeStart, DateTimeFormatter.ofPattern(DATE_TIME_PATTERN))
                 : LocalDateTime.now();
-        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd, Formatter.getFormatter())
+        LocalDateTime end = (rangeEnd != null) ? LocalDateTime.parse(rangeEnd, DateTimeFormatter.ofPattern(DATE_TIME_PATTERN))
                 : LocalDateTime.now().plusYears(20);
 
         EventAdminParams eventAdminParams = EventAdminParams.builder()
