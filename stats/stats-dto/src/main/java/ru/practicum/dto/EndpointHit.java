@@ -1,32 +1,32 @@
 package ru.practicum.dto;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import ru.practicum.json.LocalDateTimeDeserializer;
+import ru.practicum.json.LocalDateTimeSerializer;
 
-@Getter
-@Setter
-@ToString
+
+@Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class EndpointHit {
-    private Long id;
-
-    @NotBlank(message = "App name shouldn't be blank.")
-    @Pattern(regexp = "^ewm-service$", message = "App name must be 'ewm-service'.")
+    @NotBlank(message = "App cannot be blank or empty")
     private String app;
-
-    @NotBlank(message = "URI shouldn't be blank.")
-    @Pattern(regexp = "^/events(/(?<!-)[1-9][0-9]{0,18})?$",
-            message = "URI must match the correct format.")
+    @NotBlank(message = "URI cannot be blank or empty")
     private String uri;
-
-    @NotBlank(message = "IP shouldn't be blank.")
-    @Pattern(regexp = "^([0-9]{1,3}\\.){3}[0-9]{1,3}$", message = "Invalid IP address format.")
+    @Pattern(regexp = "^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$", message = "Invalid IP format")
+    @NotBlank(message = "IP cannot be blank or empty")
     private String ip;
-
-    @NotBlank(message = "Timestamp shouldn't be blank.")
-    @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}", message = "Timestamp must be in the format 'yyyy-MM-dd HH:mm:ss'")
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @NotNull(message = "Timestamp cannot be empty")
     private String timestamp;
 }
