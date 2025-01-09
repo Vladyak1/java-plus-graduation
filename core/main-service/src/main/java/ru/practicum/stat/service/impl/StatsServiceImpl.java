@@ -19,7 +19,7 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class StatsServiceImpl implements StatsService {
-    private static final String APP_NAME = "ewm-service";
+    private static final String APP_NAME = "ewm-main-service";
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
     private final StatsClient statsClient;

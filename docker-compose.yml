@@ -37,7 +37,7 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
-      ewm-service:
+      ewm-main-service:
         condition: service_healthy
     networks:
       - ewm-net
@@ -82,7 +82,7 @@ services:
       interval: 10s
       retries: 15
 
-  ewm-service:
+  ewm-main-service:
     build: core/main-service
     container_name: ewm-main-service
     depends_on:
@@ -95,7 +95,7 @@ services:
     networks:
       - ewm-net
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-main
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-main-service
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
@@ -114,7 +114,7 @@ services:
     environment:
       - POSTGRES_PASSWORD=root
       - POSTGRES_USER=root
-      - POSTGRES_DB=ewm-main
+      - POSTGRES_DB=ewm-main-service
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
