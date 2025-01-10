@@ -23,8 +23,6 @@ services:
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
       - SERVER_PORT=9091
-    ports:
-      - "9091:9091"  # Fixed port mapping
     healthcheck:
       test: "curl --fail --silent config-server:9091/actuator/health | grep UP || exit 1"
       timeout: 5s
