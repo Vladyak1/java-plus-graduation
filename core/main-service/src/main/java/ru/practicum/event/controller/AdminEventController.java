@@ -22,8 +22,6 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import static ru.practicum.constants.DataTransferConvention.DATE_TIME_PATTERN;
-
 @RestController
 @Validated
 @RequiredArgsConstructor
@@ -32,14 +30,15 @@ import static ru.practicum.constants.DataTransferConvention.DATE_TIME_PATTERN;
 public class AdminEventController {
 
     private final EventService eventService;
+    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     @GetMapping
     public ResponseEntity<List<EventLongDto>> getAllEventsByAdmin(
             @RequestParam(required = false) List<Long> users,
             @RequestParam(required = false) List<EventState> states,
             @RequestParam(required = false) List<Long> categories,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String rangeStart,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String rangeEnd,
+            @RequestParam(required = false) @DateTimeFormat(pattern = DATE_TIME_PATTERN) String rangeStart,
+            @RequestParam(required = false) @DateTimeFormat(pattern = DATE_TIME_PATTERN) String rangeEnd,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
 

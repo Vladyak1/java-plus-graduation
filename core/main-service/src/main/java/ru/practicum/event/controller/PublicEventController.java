@@ -15,13 +15,11 @@ import ru.practicum.event.dto.EventPublicParams;
 import ru.practicum.event.dto.EventShortDto;
 import ru.practicum.event.model.enums.EventState;
 import ru.practicum.event.service.EventService;
-import ru.practicum.stat.service.StatsService;
+import ru.practicum.stat.service.MainStatsService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static ru.practicum.constants.DataTransferConvention.DATE_TIME_PATTERN;
 
 @RestController
 @Validated
@@ -31,15 +29,16 @@ import static ru.practicum.constants.DataTransferConvention.DATE_TIME_PATTERN;
 public class PublicEventController {
 
     private final EventService eventService;
-    private final StatsService statsService;
+    private final MainStatsService mainStatsService;
+    private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm:ss";
 
     @GetMapping
     public ResponseEntity<List<EventShortDto>> getAllEvents(
             @RequestParam(defaultValue = "") String text,
             @RequestParam(required = false) List<Long> categories,
             @RequestParam(required = false) Boolean paid,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String  rangeStart,
-            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") String  rangeEnd,
+            @RequestParam(required = false) @DateTimeFormat(pattern = DATE_TIME_PATTERN) String  rangeStart,
+            @RequestParam(required = false) @DateTimeFormat(pattern = DATE_TIME_PATTERN) String  rangeEnd,
             @RequestParam(defaultValue = "false") boolean onlyAvailable,
             @RequestParam(defaultValue = "EVENT_DATE") String sort,
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") int from,
@@ -64,7 +63,7 @@ public class PublicEventController {
                 .sort(sort)
                 .build();
         List<EventShortDto> events = eventService.getPublicEvents(eventPublicParams);
-        statsService.createStats(request.getRequestURI(), request.getRemoteAddr());
+        mainStatsService.createStats(request.getRequestURI(), request.getRemoteAddr());
         log.info("Calling the GET request to /events endpoint");
         return ResponseEntity.status(HttpStatus.OK)
                 .body(events);
@@ -74,7 +73,7 @@ public class PublicEventController {
     public ResponseEntity<EventFullDto> getEventDtoById(@PathVariable Long id,
                                                         HttpServletRequest httpServletRequest) {
         log.info("Calling the GET request to /events/{} endpoint", id);
-        statsService.createStats(httpServletRequest.getRequestURI(), httpServletRequest.getRemoteAddr());
+        mainStatsService.createStats(httpServletRequest.getRequestURI(), httpServletRequest.getRemoteAddr());
         return ResponseEntity.status(HttpStatus.OK).body(eventService.getEventDtoByIdWithHit(id, httpServletRequest));
     }
 }

@@ -28,7 +28,7 @@ import ru.practicum.request.model.mapper.RequestsMapper;
 import ru.practicum.request.model.ParticipationRequest;
 import ru.practicum.request.model.enums.RequestStatus;
 import ru.practicum.request.service.RequestsService;
-import ru.practicum.stat.service.StatsService;
+import ru.practicum.stat.service.MainStatsService;
 import ru.practicum.user.model.User;
 import ru.practicum.user.service.UserService;
 
@@ -51,19 +51,19 @@ public class EventServiceImpl implements EventService {
     private final CategoryService categoryService;
     private final EventMapper eventMapper;
     private final RequestsMapper requestMapper;
-    private final StatsService statsService;
+    private final MainStatsService mainStatsService;
 
     @Autowired
     @Lazy
     public EventServiceImpl(EventRepository eventRepository, UserService userService, RequestsService requestService,
-                            CategoryService categoryService, EventMapper eventMapper, RequestsMapper requestMapper, StatsService statsService) {
+                            CategoryService categoryService, EventMapper eventMapper, RequestsMapper requestMapper, MainStatsService mainStatsService) {
         this.eventRepository = eventRepository;
         this.userService = userService;
         this.requestService = requestService;
         this.categoryService = categoryService;
         this.eventMapper = eventMapper;
         this.requestMapper = requestMapper;
-        this.statsService = statsService;
+        this.mainStatsService = mainStatsService;
     }
 
     public List<EventShortDto> getAllEventOfUser(Long userId, Integer from, Integer size) {
@@ -106,7 +106,7 @@ public class EventServiceImpl implements EventService {
             throw new NotFoundException("The required object was not found.");
         }
         //Получаем и добавляем просмотры
-        Map<Long, Long> views = statsService.getView(List.of(eventFullDto).stream()
+        Map<Long, Long> views = mainStatsService.getView(List.of(eventFullDto).stream()
                 .map(EventFullDto::getId)
                 .collect(Collectors.toList()), true);
 
@@ -345,8 +345,8 @@ public class EventServiceImpl implements EventService {
             List<Long> eventsId = events.stream()
                     .map(Event::getId)
                     .collect(Collectors.toList());
-            assert statsService != null;
-            return statsService.getView(eventsId, unique);
+            assert mainStatsService != null;
+            return mainStatsService.getView(eventsId, unique);
         } else return new HashMap<>();
     }
 

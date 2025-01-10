@@ -10,7 +10,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.user.dto.AdminUserDto;
 import ru.practicum.user.dto.UserDtoReceived;
-import ru.practicum.dto.Validator;
+import ru.practicum.Validator;
 import ru.practicum.user.model.User;
 import ru.practicum.user.service.UserService;
 import ru.practicum.user.mapper.UserMapper;

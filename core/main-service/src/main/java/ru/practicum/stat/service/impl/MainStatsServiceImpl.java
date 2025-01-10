@@ -3,10 +3,10 @@ package ru.practicum.stat.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.dto.EndpointHit;
-import ru.practicum.dto.ViewStats;
+import ru.practicum.EndpointHit;
+import ru.practicum.ViewStats;
 import ru.practicum.stat.client.StatsClient;
-import ru.practicum.stat.service.StatsService;
+import ru.practicum.stat.service.MainStatsService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +18,7 @@ import java.util.Map;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class StatsServiceImpl implements StatsService {
+public class MainStatsServiceImpl implements MainStatsService {
     private static final String APP_NAME = "ewm-service";
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
@@ -80,8 +80,8 @@ public class StatsServiceImpl implements StatsService {
             if (uriPath.startsWith("/events/")) {
                 try {
                     Long id = Long.valueOf(uriPath.substring("/events/".length()));
-                    Long hits = stat.getHits();
-                    views.put(id, hits);
+                    Integer hits = stat.getHits();
+                    views.put(id, Long.valueOf(hits));
                 } catch (NumberFormatException e) {
                     log.warn("Invalid event ID in URI: {}", uriPath);
                 }
