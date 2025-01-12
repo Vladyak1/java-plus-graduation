@@ -56,6 +56,11 @@
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
+				<groupId>org.mapstruct</groupId>
+				<artifactId>mapstruct-processor</artifactId>
+				<version>${mapstruct.version}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.querydsl</groupId>
 				<artifactId>querydsl-jpa</artifactId>
 				<classifier>jakarta</classifier>

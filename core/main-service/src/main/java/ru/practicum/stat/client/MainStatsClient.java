@@ -5,13 +5,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import ru.practicum.EndpointHit;
-import ru.practicum.ViewStats;
+import ru.practicum.dto.EndpointHit;
+import ru.practicum.dto.ViewStats;
 
 import java.util.List;
 
-@FeignClient(value = "stats-client")
-public interface StatsClient {
+@FeignClient(value = "main-stats-client")
+public interface MainStatsClient {
 
     @PostMapping("/hit")
     Object createStats(@RequestBody EndpointHit creationDto);

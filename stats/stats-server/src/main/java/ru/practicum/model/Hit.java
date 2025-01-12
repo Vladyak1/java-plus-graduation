@@ -1,26 +1,27 @@
-package ru.practicum.stats.entity;
+package ru.practicum.model;
 
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Setter
-@Getter
-@NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "hits")
+@Getter
+@Setter
+@ToString
+@NoArgsConstructor
 public class Hit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "hit_id")
+    private long id;
     private String app;
     private String uri;
     private String ip;
-    @Column(name = "ts")
+    @Column(name = "timestamp_hit")
     private LocalDateTime timestamp;
 }

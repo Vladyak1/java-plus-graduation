@@ -13,7 +13,6 @@ spring:
         enabled: true
         service-id: config-server
 
-
 eureka:
   client:
     service-url:

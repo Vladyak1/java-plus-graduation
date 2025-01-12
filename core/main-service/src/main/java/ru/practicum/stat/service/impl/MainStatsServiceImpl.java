@@ -3,9 +3,9 @@ package ru.practicum.stat.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.EndpointHit;
-import ru.practicum.ViewStats;
-import ru.practicum.stat.client.StatsClient;
+import ru.practicum.dto.EndpointHit;
+import ru.practicum.dto.ViewStats;
+import ru.practicum.stat.client.MainStatsClient;
 import ru.practicum.stat.service.MainStatsService;
 
 import java.time.LocalDateTime;
@@ -22,7 +22,7 @@ public class MainStatsServiceImpl implements MainStatsService {
     private static final String APP_NAME = "ewm-service";
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
-    private final StatsClient statsClient;
+    private final MainStatsClient mainStatsClient;
 
     @Override
     public void createStats(String uri, String ip) {
@@ -36,7 +36,7 @@ public class MainStatsServiceImpl implements MainStatsService {
                 .build();
 
         try {
-            Object result = statsClient.createStats(stats);
+            Object result = mainStatsClient.createStats(stats);
             log.info("Stats created successfully. Result: {}", result);
         } catch (Exception e) {
             log.error("Error creating stats: ", e);
@@ -56,7 +56,7 @@ public class MainStatsServiceImpl implements MainStatsService {
                 .toArray(String[]::new);
 
         try {
-            List<ViewStats> stats = statsClient.getStats(start, end, uris, unique);
+            List<ViewStats> stats = mainStatsClient.getStats(start, end, uris, unique);
             log.info("Retrieved {} stats entries", stats.size());
             return stats;
         } catch (Exception e) {
@@ -80,8 +80,8 @@ public class MainStatsServiceImpl implements MainStatsService {
             if (uriPath.startsWith("/events/")) {
                 try {
                     Long id = Long.valueOf(uriPath.substring("/events/".length()));
-                    Integer hits = stat.getHits();
-                    views.put(id, Long.valueOf(hits));
+                    Long hits = stat.getHits();
+                    views.put(id, hits);
                 } catch (NumberFormatException e) {
                     log.warn("Invalid event ID in URI: {}", uriPath);
                 }
