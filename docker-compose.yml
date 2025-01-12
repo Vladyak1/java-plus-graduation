@@ -69,6 +69,8 @@ services:
       - SERVER_PORT=9090
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=*
       - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=always
+      - SPRING_SQL_INIT_SCHEMA_LOCATIONS=classpath:schema.sql
+      - SPRING_SQL_INIT_CONTINUE_ON_ERROR=true
     healthcheck:
       test: |
         CMD-SHELL
@@ -85,6 +87,8 @@ services:
       - POSTGRES_PASSWORD=root
       - POSTGRES_USER=root
       - POSTGRES_DB=ewm-stats
+    volumes:
+      - ./stats/stats-server/docker/init:/docker-entrypoint-initdb.d
     networks:
       - ewm-net
     healthcheck:
@@ -92,8 +96,6 @@ services:
       timeout: 5s
       interval: 10s
       retries: 15
-    volumes:
-      - stats-db-data:/var/lib/postgresql/data
 
   ewm-service:
     build: core/main-service
@@ -138,12 +140,6 @@ services:
       timeout: 5s
       interval: 10s
       retries: 15
-    volumes:
-      - ewm-db-data:/var/lib/postgresql/data
 
 networks:
   ewm-net:
-
-volumes:
-  stats-db-data:
-  ewm-db-data:

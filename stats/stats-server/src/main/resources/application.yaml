@@ -12,6 +12,22 @@ spring:
       discovery:
         enabled: true
         service-id: config-server
+    openfeign:
+      client:
+        config:
+          main-stats-client:
+            connectTimeout: 5000
+            readTimeout: 5000
+            loggerLevel: full
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    env:
+      show-values: ALWAYS
 
 eureka:
   client:

@@ -19,13 +19,18 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class MainStatsServiceImpl implements MainStatsService {
-    private static final String APP_NAME = "ewm-service";
+    private static final String APP_NAME = "ewm-main-service";
     private static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_FORMAT);
     private final MainStatsClient mainStatsClient;
 
     @Override
     public void createStats(String uri, String ip) {
+        if (uri == null || ip == null) {
+            log.error("URI or IP is null");
+            throw new IllegalArgumentException("URI and IP cannot be null");
+        }
+
         log.info("Creating stats for URI: {}, IP: {}", uri, ip);
 
         EndpointHit stats = EndpointHit.builder()
@@ -39,56 +44,80 @@ public class MainStatsServiceImpl implements MainStatsService {
             Object result = mainStatsClient.createStats(stats);
             log.info("Stats created successfully. Result: {}", result);
         } catch (Exception e) {
-            log.error("Error creating stats: ", e);
-            // Consider rethrowing the exception or handling it as appropriate for your application
+            log.error("Error creating stats for URI: {} and IP: {}", uri, ip, e);
+            throw new RuntimeException("Failed to create stats", e);
         }
     }
 
     @Override
     public List<ViewStats> getStats(List<Long> eventsId, boolean unique) {
+        if (eventsId == null || eventsId.isEmpty()) {
+            log.info("Events list is null or empty");
+            return Collections.emptyList();
+        }
+
         log.info("Getting stats for events: {}, unique: {}", eventsId, unique);
 
-        String start = LocalDateTime.now().minusYears(20).format(formatter);
-        String end = LocalDateTime.now().plusYears(20).format(formatter);
-
-        String[] uris = eventsId.stream()
-                .map(id -> String.format("/events/%d", id))
-                .toArray(String[]::new);
-
         try {
+            String start = LocalDateTime.now().minusYears(20).format(formatter);
+            String end = LocalDateTime.now().plusYears(20).format(formatter);
+
+            String[] uris = eventsId.stream()
+                    .filter(id -> id != null)
+                    .map(id -> String.format("/events/%d", id))
+                    .toArray(String[]::new);
+
+            if (uris.length == 0) {
+                log.warn("No valid event IDs found");
+                return Collections.emptyList();
+            }
+
             List<ViewStats> stats = mainStatsClient.getStats(start, end, uris, unique);
             log.info("Retrieved {} stats entries", stats.size());
             return stats;
         } catch (Exception e) {
-            log.error("Error getting stats: ", e);
-            // Consider rethrowing the exception or handling it as appropriate for your application
-            return Collections.emptyList();
+            log.error("Error getting stats for events: {}", eventsId, e);
+            throw new RuntimeException("Failed to get stats", e);
         }
     }
 
     @Override
     public Map<Long, Long> getView(List<Long> eventsId, boolean unique) {
+        if (eventsId == null || eventsId.isEmpty()) {
+            log.info("Events list is null or empty");
+            return Collections.emptyMap();
+        }
+
         log.info("Getting views for events: {}, unique: {}", eventsId, unique);
 
         Map<Long, Long> views = new HashMap<>();
 
-        // Retrieve stats using the getStats method
-        List<ViewStats> stats = getStats(eventsId, unique);
+        try {
+            List<ViewStats> stats = getStats(eventsId, unique);
 
-        for (ViewStats stat : stats) {
-            String uriPath = stat.getUri();
-            if (uriPath.startsWith("/events/")) {
-                try {
-                    Long id = Long.valueOf(uriPath.substring("/events/".length()));
-                    Long hits = stat.getHits();
-                    views.put(id, hits);
-                } catch (NumberFormatException e) {
-                    log.warn("Invalid event ID in URI: {}", uriPath);
+            // Initialize views with 0 for all event IDs
+            eventsId.forEach(id -> views.put(id, 0L));
+
+            for (ViewStats stat : stats) {
+                String uriPath = stat.getUri();
+                if (uriPath != null && uriPath.startsWith("/events/")) {
+                    try {
+                        Long id = Long.valueOf(uriPath.substring("/events/".length()));
+                        if (eventsId.contains(id)) {  // Only count views for requested events
+                            Long hits = stat.getHits() != null ? stat.getHits() : 0L;
+                            views.put(id, hits);
+                        }
+                    } catch (NumberFormatException e) {
+                        log.warn("Invalid event ID in URI: {}", uriPath);
+                    }
                 }
             }
-        }
 
-        log.info("Processed views: {}", views);
-        return views;
+            log.info("Processed views: {}", views);
+            return views;
+        } catch (Exception e) {
+            log.error("Error processing views for events: {}", eventsId, e);
+            throw new RuntimeException("Failed to process views", e);
+        }
     }
 }
