@@ -3,7 +3,7 @@ package ru.practicum.category.service.impl;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.category.dto.CategoryDto;
 import ru.practicum.category.dto.CategoryDtoRequest;
@@ -78,9 +78,9 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.toCategoryDto(updatedCategory);
     }
 
-    public List<CategoryDto> getAllCategories(Integer from, Integer size) {
+    public List<CategoryDto> getAllCategories(Pageable pageable) {
         List<Category> categories;
-        categories = categoryRepository.findAll(PageRequest.of(from / size, size)).getContent();
+        categories = categoryRepository.findAll(pageable).getContent();
         log.info("Список категорий успешно выдан");
         return categories.stream().map(categoryMapper::toCategoryDto).collect(Collectors.toList());
     }

@@ -69,7 +69,7 @@ public class EventServiceImpl implements EventService {
     public List<EventShortDto> getAllEventOfUser(Long userId, Integer from, Integer size) {
         List<EventShortDto> eventsOfUser;
         userService.findUserById(userId);
-        List<Event> events = eventRepository.findEventsOfUser(userId, PageRequest.of(from / size, size));
+        List<Event> events = eventRepository.findByInitiatorIdOrderByIdDesc(userId, PageRequest.of(from / size, size));
         eventsOfUser = events.stream().map(eventMapper::toEventShortDto).collect(Collectors.toList());
         log.info("Получение всех событий пользователя с ID = {}", userId);
         return eventsOfUser;

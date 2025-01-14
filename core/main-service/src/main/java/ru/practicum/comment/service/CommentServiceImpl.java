@@ -18,7 +18,6 @@ import ru.practicum.user.service.UserService;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -122,10 +121,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     public Comment getCommentById(Long commentId) {
-        Optional<Comment> commentOptional = commentRepository.findById(commentId);
-        if (commentOptional.isPresent()) {
-            return commentOptional.get();
-        }
-        throw new NotFoundException("Comment with ID = " + commentId + " was not found.");
+        return commentRepository.findById(commentId)
+                .orElseThrow(() -> new NotFoundException("Comment с ID = " + commentId + " не найден."));
     }
 }

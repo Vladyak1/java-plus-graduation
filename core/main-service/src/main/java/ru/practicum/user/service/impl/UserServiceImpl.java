@@ -63,8 +63,6 @@ public class UserServiceImpl implements UserService {
             return allUsers;
         }
 
-//        idList.forEach(this::findUserById);
-
         List<User> users = userMainServiceRepository.findAllByIdIn(idList, pageable);
         if (users.isEmpty()) {
             return List.of();
@@ -84,7 +82,6 @@ public class UserServiceImpl implements UserService {
         if (user.isEmpty()) {
             log.error("User with id {} not found", id);
             throw new NotFoundException(String.format("User with id=%s was not found", id));
-            //return new User();
         }
 
         log.info("User with id {} found", id);

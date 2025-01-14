@@ -43,6 +43,6 @@ public interface EventMapper {
         if (value == null || value.isEmpty()) {
             return 0L;
         }
-        return value.get(0); // or use any other logic to select a value
+        return value.get(0);
     }
 }

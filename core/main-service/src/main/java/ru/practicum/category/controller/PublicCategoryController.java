@@ -4,6 +4,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -27,7 +29,9 @@ public class PublicCategoryController {
             @PositiveOrZero @RequestParam(required = false, defaultValue = "0") Integer from,
             @Positive @RequestParam(required = false, defaultValue = "10") Integer size) {
         log.info("Calling the GET request to /categories endpoint");
-        return ResponseEntity.status(HttpStatus.OK).body(categoryService.getAllCategories(from, size));
+        Pageable pageable = PageRequest.of(from / size, size);
+        List<CategoryDto> categories = categoryService.getAllCategories(pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(categories);
     }
 
     @GetMapping("/{catId}")
