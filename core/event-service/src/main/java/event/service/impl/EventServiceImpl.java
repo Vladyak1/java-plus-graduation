@@ -210,7 +210,7 @@ public class EventServiceImpl implements EventService {
         Integer countOfRequest = requestUpdate.getRequestIds().size(); // находим количество новых заявок на одобрение
 
         for (ParticipationRequestDto request : requests) {
-            if (!request.getStatus().equals(RequestStatus.PENDING)) {
+            if (!request.getStatus().equals(RequestStatus.PENDING.toString())) {
                 throw new DataConflictRequest("Изменить статус можно только у ожидающей подтверждения заявки на " +
                         "участие");
             }
