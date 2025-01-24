@@ -6,5 +6,7 @@ import client.EventServiceClient;
 @SpringBootApplication
 @EnableFeignClients(clients = {EventServiceClient.class})
 public class CommentServiceApplication {
-    public static void main(String[] args) { SpringApplication.run(CommentServiceApplication.class, args); }
+    public static void main(String[] args) {
+        SpringApplication.run(CommentServiceApplication.class, args);
+    }
 }
