@@ -6,8 +6,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import dto.user.UserCreateDto;
-import dto.user.AdminUserDto;
+import ru.practicum.dto.user.UserCreateDto;
+import ru.practicum.dto.user.AdminUserDto;
 
 import java.util.List;
 import java.util.Map;

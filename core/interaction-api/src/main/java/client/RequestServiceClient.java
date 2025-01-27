@@ -1,6 +1,6 @@
 package client;
 
-import dto.request.ParticipationRequestDto;
+import ru.practicum.dto.request.ParticipationRequestDto;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
