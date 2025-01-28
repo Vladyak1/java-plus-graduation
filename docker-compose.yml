@@ -1,4 +1,5 @@
 services:
+  ## CLOUD-SERVICES
   discovery-server:
     build: infra/discovery-server
     container_name: discovery-server
@@ -40,12 +41,86 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
-      ewm-service:
+      event-service:
+        condition: service_healthy
+      comment-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      stats-server:
+        condition: service_healthy
+      request-service:
         condition: service_healthy
     networks:
       - ewm-net
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+
+  #USER
+  user-db:
+    image: postgres:16.1
+    container_name: postgres-ewm-user-db
+    networks:
+      - ewm-net
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=ewm-user
+    volumes:
+      - ./core/user-service/docker/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 10s
+      retries: 15
+
+  user-service:
+    build: core/user-service
+    container_name: ewm-user-service
+    depends_on:
+      user-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://user-db:5432/ewm-user
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8082
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_SQL_INIT_SCHEMA_LOCATIONS=classpath:schema.sql
+      - SPRING_SQL_INIT_CONTINUE_ON_ERROR=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_APPLICATION_NAME=user-service
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:9091
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
+    healthcheck:
+      test: [ "CMD-SHELL", "pidof java || exit 1" ]
+      timeout: 5s
+      interval: 25s
+      retries: 10
+
+  ## STATS
+  stats-db:
+    image: postgres:16.1
+    container_name: postgres-ewm-stats-db
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=ewm-stats
+    networks:
+      - ewm-net
+    volumes:
+      - ./stats/stats-server/docker/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 10s
+      retries: 15
 
   stats-server:
     build: stats/stats-server
@@ -72,36 +147,42 @@ services:
       - SPRING_SQL_INIT_SCHEMA_LOCATIONS=classpath:schema.sql
       - SPRING_SQL_INIT_CONTINUE_ON_ERROR=true
     healthcheck:
-      test: |
-        CMD-SHELL
-        curl -f http://localhost:9090/actuator/health || exit 1
+      test: "curl --fail --silent localhost:9090/actuator/health | grep UP || exit 1"
       timeout: 10s
       interval: 15s
       retries: 5
-      start_period: 40s
+      start_period: 30s
 
-  stats-db:
+  # CORE-SERVICES
+  event-db:
     image: postgres:16.1
-    container_name: postgres-ewm-stats-db
+    container_name: postgres-ewm-event-db
+    depends_on:
+      user-db:
+        condition: service_healthy
+    networks:
+      - ewm-net
     environment:
       - POSTGRES_PASSWORD=root
       - POSTGRES_USER=root
-      - POSTGRES_DB=ewm-stats
+      - POSTGRES_DB=ewm-event
     volumes:
-      - ./stats/stats-server/docker/init:/docker-entrypoint-initdb.d
-    networks:
-      - ewm-net
+      - ./core/event-service/docker/init:/docker-entrypoint-initdb.d
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 10s
       retries: 15
 
-  ewm-service:
-    build: core/main-service
-    container_name: ewm-main-service
+  event-service:
+    build: core/event-service
+    container_name: ewm-event-service
     depends_on:
-      ewm-db:
+      user-db:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      event-db:
         condition: service_healthy
       config-server:
         condition: service_healthy
@@ -110,36 +191,151 @@ services:
     networks:
       - ewm-net
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-main
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://event-db:5432/ewm-event
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8083
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_SQL_INIT_SCHEMA_LOCATIONS=classpath:schema.sql
+      - SPRING_SQL_INIT_CONTINUE_ON_ERROR=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_APPLICATION_NAME=event-service
       - SPRING_CLOUD_CONFIG_URI=http://config-server:9091
-      - STATS_SERVER_URL=http://stats-server:9090
-      - SPRING_CLOUD_CONFIG_FAIL_FAST=true
-      - SPRING_CLOUD_CONFIG_RETRY_MAX_ATTEMPTS=10
-      - SPRING_CLOUD_CONFIG_RETRY_INITIAL_INTERVAL=1500
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
     healthcheck:
       test: [ "CMD-SHELL", "pidof java || exit 1" ]
       timeout: 5s
-      interval: 15s
-      retries: 5
-      start_period: 40s
+      interval: 25s
+      retries: 10
 
-  ewm-db:
+  comment-db:
     image: postgres:16.1
-    container_name: postgres-ewm-main-db
+    container_name: postgres-ewm-comment-db
+    depends_on:
+      config-server:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      user-db:
+        condition: service_healthy
+      event-db:
+        condition: service_healthy
     networks:
       - ewm-net
     environment:
       - POSTGRES_PASSWORD=root
       - POSTGRES_USER=root
-      - POSTGRES_DB=ewm-main
+      - POSTGRES_DB=ewm-comment
+    volumes:
+      - ./core/comment-service/docker/init:/docker-entrypoint-initdb.d
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 10s
       retries: 15
 
+  comment-service:
+    build: core/comment-service
+    container_name: ewm-comment-service
+    depends_on:
+      comment-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      event-service:
+        condition: service_healthy
+      stats-server:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://comment-db:5432/ewm-comment
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8084
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_SQL_INIT_SCHEMA_LOCATIONS=classpath:schema.sql
+      - SPRING_SQL_INIT_CONTINUE_ON_ERROR=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_APPLICATION_NAME=comment-service
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:9091
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
+    healthcheck:
+      test: [ "CMD-SHELL", "pidof java || exit 1" ]
+      timeout: 5s
+      interval: 25s
+      retries: 10
+
+  request-db:
+    image: postgres:16.1
+    container_name: postgres-ewm-request-db
+    depends_on:
+      user-db:
+        condition: service_healthy
+      event-db:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=ewm-request
+    volumes:
+      - ./core/request-service/docker/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 10s
+      retries: 15
+
+  request-service:
+    build: core/request-service
+    container_name: ewm-request-service
+    depends_on:
+      user-db:
+        condition: service_healthy
+      event-db:
+        condition: service_healthy
+      request-db:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+      event-service:
+        condition: service_healthy
+      discovery-server:
+        condition: service_healthy
+      stats-server:
+        condition: service_healthy
+    networks:
+      - ewm-net
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://request-db:5432/ewm-request
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
+      - SERVER_PORT=8085
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_SQL_INIT_SCHEMA_LOCATIONS=classpath:schema.sql
+      - SPRING_SQL_INIT_CONTINUE_ON_ERROR=true
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=none
+      - SPRING_JPA_SHOW_SQL=true
+      - SPRING_APPLICATION_NAME=request-service
+      - SPRING_CLOUD_CONFIG_URI=http://config-server:9091
+      - EUREKA_INSTANCE_PREFERIPADDRESS=true
+    healthcheck:
+      test: [ "CMD-SHELL", "pidof java || exit 1" ]
+      timeout: 5s
+      interval: 25s
+      retries: 10
+
 networks:
   ewm-net:
+    driver: bridge

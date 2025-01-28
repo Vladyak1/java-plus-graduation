@@ -4,11 +4,163 @@ spring:
       discovery:
         locator:
           enabled: true
+          lower-case-service-id: true
       routes:
-        - id: main_service_route
-          uri: lb://main-service
+        # User Service Routes
+        - id: user_service_admin_route
+          uri: lb://user-service
           predicates:
-            - Path=/**
+            - Path=/admin/users/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,DELETE
+                series: SERVER_ERROR
+
+        - id: user_service_internal_route
+          uri: lb://user-service
+          predicates:
+            - Path=/internal/users/**
+
+        # Event Service Routes
+        - id: event_service_admin_events
+          uri: lb://event-service
+          predicates:
+            - Path=/admin/events/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,DELETE
+                series: SERVER_ERROR
+
+        - id: event_service_private_events
+          uri: lb://event-service
+          predicates:
+            - Path=/users/{userId}/events/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,PUT,DELETE,PATCH
+                series: SERVER_ERROR
+            - StripPrefix=0
+            - PreserveHostHeader
+
+        - id: event_service_public_events
+          uri: lb://event-service
+          predicates:
+            - Path=/events/**
+
+        - id: event_service_internal
+          uri: lb://event-service
+          predicates:
+            - Path=/internal/events/**
+
+        # Category Service Routes
+        - id: event_service_admin_categories
+          uri: lb://event-service
+          predicates:
+            - Path=/admin/categories/**
+
+        - id: event_service_public_categories
+          uri: lb://event-service
+          predicates:
+            - Path=/categories/**
+
+        # Compilations Service Routes
+        - id: event_service_admin_compilations
+          uri: lb://event-service
+          predicates:
+            - Path=/admin/compilations/**
+
+        - id: event_service_public_compilations
+          uri: lb://event-service
+          predicates:
+            - Path=/compilations/**
+
+        # Request Service Routes
+        - id: request_service_private
+          uri: lb://request-service
+          predicates:
+            - Path=/users/{userId}/requests/**
+
+        - id: request_service_internal
+          uri: lb://request-service
+          predicates:
+            - Path=/internal/requests/**
+
+        # Comment Service Routes
+        - id: comment_service_private_user
+          uri: lb://comment-service
+          predicates:
+            - Path=/users/{userId}/events/{eventId}/comments/**,/users/{userId}/comments/{commentId}/**,/user/events/{eventId}/comments/**
+
+        - id: comment_service_admin
+          uri: lb://comment-service
+          predicates:
+            - Path=/admin/comments/**
+
+        - id: comment_service_public
+          uri: lb://comment-service
+          predicates:
+            - Path=/events/{eventId}/comments/**
+
+        - id: comment_service_internal
+          uri: lb://comment-service
+          predicates:
+            - Path=/internal/comments/**
+
+      default-filters:
+        - name: Retry
+          args:
+            retries: 3
+            methods: GET,POST,PUT,DELETE,PATCH
+            series: SERVER_ERROR
+            exceptions: java.io.IOException,java.util.concurrent.TimeoutException
 
 server:
   port: 8080
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+    org.springframework.cloud.config: DEBUG
+    org.springframework.web: DEBUG
+    reactor.netty: DEBUG
+    root: INFO
+
+resilience4j:
+  circuitbreaker:
+    configs:
+      default:
+        slidingWindowSize: 10
+        failureRateThreshold: 50
+        waitDurationInOpenState: 20000
+        permittedNumberOfCallsInHalfOpenState: 3
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+    instances:
+      defaultCircuitBreaker:
+        baseConfig: default
+  retry:
+    configs:
+      default:
+        maxAttempts: 3
+        waitDuration: 1000
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+    instances:
+      defaultRetry:
+        baseConfig: default
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,gateway,info
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      enabled: true

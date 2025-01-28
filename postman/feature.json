@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "9ab85bd1-9517-40fa-9135-f4a9fe3fe6f4",
 		"name": "Test Explore With Me - Comments",
-		"description": "Тесты для проверки работоспособности дополнитеьной функциональности по добавлениюб комментариев к событиям.",
+		"description": "Тесты для проверки работоспособности дополнительной функциональности по добавлению комментариев к событиям.",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "31230138"
 	},
