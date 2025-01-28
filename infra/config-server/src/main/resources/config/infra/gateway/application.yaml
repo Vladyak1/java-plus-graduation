@@ -28,11 +28,25 @@ spring:
           uri: lb://event-service
           predicates:
             - Path=/admin/events/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,DELETE
+                series: SERVER_ERROR
 
         - id: event_service_private_events
           uri: lb://event-service
           predicates:
             - Path=/users/{userId}/events/**
+          filters:
+            - name: Retry
+              args:
+                retries: 3
+                methods: GET,POST,PUT,DELETE,PATCH
+                series: SERVER_ERROR
+            - StripPrefix=0
+            - PreserveHostHeader
 
         - id: event_service_public_events
           uri: lb://event-service
@@ -81,75 +95,24 @@ spring:
         - id: comment_service_private_user
           uri: lb://comment-service
           predicates:
-            - Path=/users/{userId}/events/{eventId}/comments/**,
-              /users/{userId}/comments/{commentId}/**,
-              /user/events/{eventId}/comments/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: commentServiceCircuitBreaker
-                fallbackUri: forward:/fallback
-            - name: Retry
-              args:
-                retries: 3
-                methods:
-                  - POST
-                  - GET
-                  - PATCH
-                  - DELETE
-                series:
-                  - SERVER_ERROR
+            - Path=/users/{userId}/events/{eventId}/comments/**,/users/{userId}/comments/{commentId}/**,/user/events/{eventId}/comments/**
 
         - id: comment_service_admin
           uri: lb://comment-service
           predicates:
             - Path=/admin/comments/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: commentServiceCircuitBreaker
-                fallbackUri: forward:/fallback
-            - name: Retry
-              args:
-                retries: 3
-                methods:
-                  - PATCH
-                  - DELETE
-                series:
-                  - SERVER_ERROR
 
         - id: comment_service_public
           uri: lb://comment-service
           predicates:
             - Path=/events/{eventId}/comments/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: commentServiceCircuitBreaker
-                fallbackUri: forward:/fallback
-            - name: Retry
-              args:
-                retries: 3
-                methods:
-                  - GET
-                series:
-                  - SERVER_ERROR
 
         - id: comment_service_internal
           uri: lb://comment-service
           predicates:
             - Path=/internal/comments/**
-          filters:
-            - name: CircuitBreaker
-              args:
-                name: commentServiceCircuitBreaker
-                fallbackUri: forward:/fallback
 
       default-filters:
-        - name: CircuitBreaker
-          args:
-            name: defaultCircuitBreaker
-            fallbackUri: forward:/fallback
         - name: Retry
           args:
             retries: 3

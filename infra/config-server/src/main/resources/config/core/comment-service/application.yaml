@@ -13,7 +13,7 @@ spring:
       mode: always
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: jdbc:postgresql://ewm-db:5432/ewm-comment
+    url: jdbc:postgresql://comment-db:5432/ewm-comment
     username: root
     password: root
   cloud:
