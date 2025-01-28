@@ -56,7 +56,7 @@ services:
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
 
-      #USER
+  #USER
   user-db:
     image: postgres:16.1
     container_name: postgres-ewm-user-db
@@ -95,7 +95,7 @@ services:
       - SPRING_SQL_INIT_CONTINUE_ON_ERROR=true
       - SPRING_JPA_HIBERNATE_DDL_AUTO=none
       - SPRING_JPA_SHOW_SQL=true
-      - SPRING_APPLICATION_NAME=service-name
+      - SPRING_APPLICATION_NAME=user-service
       - SPRING_CLOUD_CONFIG_URI=http://config-server:9091
       - EUREKA_INSTANCE_PREFERIPADDRESS=true
     healthcheck:
@@ -104,7 +104,24 @@ services:
       interval: 25s
       retries: 10
 
-      ## STATS
+  ## STATS
+  stats-db:
+    image: postgres:16.1
+    container_name: postgres-ewm-stats-db
+    environment:
+      - POSTGRES_PASSWORD=root
+      - POSTGRES_USER=root
+      - POSTGRES_DB=ewm-stats
+    networks:
+      - ewm-net
+    volumes:
+      - ./stats/stats-server/docker/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+      timeout: 5s
+      interval: 10s
+      retries: 15
+
   stats-server:
     build: stats/stats-server
     container_name: ewm-stats-server
@@ -134,26 +151,29 @@ services:
       timeout: 10s
       interval: 15s
       retries: 5
-      start_period: 40s
+      start_period: 30s
 
-  stats-db:
+  # CORE-SERVICES
+  event-db:
     image: postgres:16.1
-    container_name: postgres-ewm-stats-db
+    container_name: postgres-ewm-event-db
+    depends_on:
+      user-db:
+        condition: service_healthy
+    networks:
+      - ewm-net
     environment:
       - POSTGRES_PASSWORD=root
       - POSTGRES_USER=root
-      - POSTGRES_DB=ewm-stats
-    networks:
-      - ewm-net
+      - POSTGRES_DB=ewm-event
     volumes:
-      - ./stats/stats-server/docker/init:/docker-entrypoint-initdb.d
+      - ./core/event-service/docker/init:/docker-entrypoint-initdb.d
     healthcheck:
       test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
       timeout: 5s
       interval: 10s
       retries: 15
 
-      # CORE-SERVICES
   event-service:
     build: core/event-service
     container_name: ewm-event-service
@@ -189,26 +209,6 @@ services:
       timeout: 5s
       interval: 25s
       retries: 10
-
-  event-db:
-    image: postgres:16.1
-    container_name: postgres-ewm-event-db
-    depends_on:
-      user-db:
-        condition: service_healthy
-    networks:
-      - ewm-net
-    environment:
-      - POSTGRES_PASSWORD=root
-      - POSTGRES_USER=root
-      - POSTGRES_DB=ewm-event
-    volumes:
-      - ./core/event-service/docker/init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
-      timeout: 5s
-      interval: 10s
-      retries: 15
 
   comment-db:
     image: postgres:16.1

@@ -1,5 +1,8 @@
 package ru.practicum.mapper;
 
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.factory.Mappers;
 import ru.practicum.dto.AdminUserDto;
 import ru.practicum.dto.UserDto;
 import ru.practicum.dto.UserDtoReceived;
@@ -7,43 +10,20 @@ import ru.practicum.dto.UserShortDto;
 import ru.practicum.model.User;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+@Mapper(componentModel = "spring")
+public interface UserMapper {
 
-public class UserMapper {
+    UserMapper INSTANCE = Mappers.getMapper(UserMapper.class);
 
-    public UserDto toUserDto(User user) {
-        return UserDto.builder()
-                .name(user.getName())
-                .id(user.getId())
-                .build();
-    }
+    UserDto toUserDto(User user);
 
-    public static User toUser(UserDtoReceived userDto) {
-        return User.builder()
-                .email(userDto.getEmail())
-                .name(userDto.getName())
-                .isAdmin(userDto.getIsAdmin())
-                .build();
-    }
+    @Mapping(target = "id", ignore = true)
+    User toUser(UserDtoReceived userDto);
 
-    public static UserShortDto toUserShortDto(User user) {
-        return UserShortDto.builder()
-                .id(user.getId())
-                .name(user.getName())
-                .build();
-    }
+    UserShortDto toUserShortDto(User user);
 
-    public static AdminUserDto toAdminUserDto(User newUser) {
-        return AdminUserDto.builder()
-                .email(newUser.getEmail())
-                .id(newUser.getId())
-                .name(newUser.getName())
-                .build();
-    }
+    AdminUserDto toAdminUserDto(User user);
 
-    public static List<AdminUserDto> toListAdminUserDto(List<User> users) {
-        return users.stream().map(UserMapper::toAdminUserDto).collect(Collectors.toList());
-    }
-
+    List<AdminUserDto> toListAdminUserDto(List<User> users);
 }

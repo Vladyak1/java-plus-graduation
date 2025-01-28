@@ -25,12 +25,13 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<AdminUserDto> createUser(@RequestBody @Validated({Validator.Create.class}) UserDtoReceived userDto) {
         log.info("Calling the POST request to /admin/users endpoint {}", userDto);
-        User user = UserMapper.toUser(userDto);
+        User user = userMapper.toUser(userDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(user));
     }
 
@@ -47,7 +48,7 @@ public class UserController {
                                                        @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                                        @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("Calling the GET request to /admin/users endpoint");
-        List<AdminUserDto> response = UserMapper.toListAdminUserDto(userService.readUsers(ids, from, size));
+        List<AdminUserDto> response = userMapper.toListAdminUserDto(userService.readUsers(ids, from, size));
         return ResponseEntity.ok(response);
     }
 

@@ -25,8 +25,8 @@ import java.util.Optional;
 @Slf4j
 public class UserServiceImpl implements UserService {
 
-
     private final UserMainServiceRepository userMainServiceRepository;
+    private final UserMapper userMapper;
 
     @Transactional
     @Override
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
         if (userMainServiceRepository.existsByEmail(user.getEmail())) {
             throw new NotUniqueException("User with this email already exists");
         }
-        AdminUserDto adminDto = UserMapper.toAdminUserDto(userMainServiceRepository.save(user));
+        AdminUserDto adminDto = userMapper.toAdminUserDto(userMainServiceRepository.save(user));
         log.info("Result: user {} - created", adminDto);
         return adminDto;
     }
@@ -85,6 +85,6 @@ public class UserServiceImpl implements UserService {
         }
 
         log.info("User with id {} found", id);
-        return UserMapper.toAdminUserDto(user.get());
+        return userMapper.toAdminUserDto(user.get());
     }
 }

@@ -22,7 +22,6 @@ public class CommentController {
 
     private final CommentService commentService;
 
-
     @PostMapping("/users/{userId}/events/{eventId}/comments")
     public ResponseEntity<CommentDto> addCommentToEvent(@NonNull @PathVariable("userId") Long authorId,
                                                         @NonNull @PathVariable("eventId") Long eventId,

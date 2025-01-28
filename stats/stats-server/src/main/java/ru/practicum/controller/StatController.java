@@ -30,10 +30,8 @@ public class StatController {
             @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
         log.info("Вызван метода с запросом статистики в период с {} до {}, для следующих серверов {}. " +
                 "Выбраны только уникальные значения - {}", start, end, uris, unique);
-        // Получение статистики
         List<ViewStats> stats = hitService.getStats(start, end, uris, unique);
 
-        // Логирование возвращаемого значения
         log.info("Статистика получена: {}", stats);
 
         return ResponseEntity.status(HttpStatus.OK).body(stats);
@@ -43,7 +41,6 @@ public class StatController {
     @Transactional
     public ResponseEntity<EndpointHit> addHit(@RequestBody EndpointHit endpointHit) {
         log.info("Вызван метод добавления записи в статистику {}", endpointHit);
-        // Логирование результата
         EndpointHit status = hitService.addHit(endpointHit);
         log.info("Результат добавления записи: {}", status);
         return ResponseEntity.status(HttpStatus.CREATED).body(status);

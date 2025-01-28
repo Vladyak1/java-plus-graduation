@@ -21,6 +21,7 @@ import java.util.List;
 public class InternalUserController {
 
     private final UserService userService;
+    private final UserMapper userMapper;
 
     @GetMapping("/{userId}")
     public ResponseEntity<AdminUserDto> getById(@PathVariable long userId) {
@@ -35,7 +36,7 @@ public class InternalUserController {
                                                        @RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                                        @RequestParam(defaultValue = "10") @Positive int size) {
         log.info("Calling the GET request to /internal/users/all endpoint");
-        List<AdminUserDto> response = UserMapper.toListAdminUserDto(userService.readUsers(ids, from, size));
+        List<AdminUserDto> response = userMapper.toListAdminUserDto(userService.readUsers(ids, from, size));
         return ResponseEntity.ok(response);
     }
 
