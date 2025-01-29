@@ -13,20 +13,14 @@ spring:
         enabled: true
         service-id: config-server
 
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-    fetch-registry: true
-    register-with-eureka: true
   instance:
     prefer-ip-address: true
     hostname: localhost
     instance-id: "${spring.application.name}:${random.value}"
     lease-renewal-interval-in-seconds: 10
 
-logging:
-  level:
-    ru.practicum: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.cloud: DEBUG
