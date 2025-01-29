@@ -195,7 +195,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-server:8761/eureka/
-      - SERVER_PORT=8083
+      - SERVER_PORT=0
       - SPRING_SQL_INIT_MODE=always
       - SPRING_SQL_INIT_SCHEMA_LOCATIONS=classpath:schema.sql
       - SPRING_SQL_INIT_CONTINUE_ON_ERROR=true

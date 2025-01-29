@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AdminUserDto {
-
     private Long id;
     private String name;
     private String email;

@@ -1,9 +1,12 @@
 package ru.practicum.dto.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -17,7 +20,8 @@ public class UpdateEventUserRequest {
     private Long category;
     @Size(min = 20, max = 7000, message = "The description field must be between 20 and 7000 characters long.")
     private String description;
-    private String eventDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime eventDate;
     private LocationDto location;
     private Boolean paid;
     @PositiveOrZero

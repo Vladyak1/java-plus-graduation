@@ -12,7 +12,7 @@ import ru.practicum.client.StatsClient;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@ComponentScan(basePackages = {"ru.practicum.core.event", "ru.practicum.client"})
+@ComponentScan(basePackages = {"ru.practicum", "ru.practicum.client"})
 @EnableFeignClients(clients = {
         StatsClient.class, UserServiceClient.class,
         CommentServiceClient.class, RequestServiceClient.class})

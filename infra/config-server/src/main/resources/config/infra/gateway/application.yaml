@@ -45,7 +45,6 @@ spring:
                 retries: 3
                 methods: GET,POST,PUT,DELETE,PATCH
                 series: SERVER_ERROR
-            - StripPrefix=0
             - PreserveHostHeader
 
         - id: event_service_public_events

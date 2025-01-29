@@ -1,6 +1,7 @@
 package ru.practicum.model;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -26,14 +27,14 @@ public class ParticipationRequest {
     private Long id;
 
     @Column(name = "created_on", columnDefinition = "TIMESTAMP WITHOUT TIME ZONE NOT NULL")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime created;
 
     @JoinColumn(name = "event_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Long eventId;
 
-    @JoinColumn(name = "requester_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
+    @Column(name = "requester_id")
     private Long requesterId;
 
     @Enumerated(EnumType.STRING)

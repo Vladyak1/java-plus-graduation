@@ -1,7 +1,10 @@
 package ru.practicum.dto.event;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -19,7 +22,8 @@ public class NewEventDto {
     @Size(min = 20, max = 7000, message = "The description field must be between 20 and 7000 characters long.")
     private String description;
     @NotNull
-    private String eventDate;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime eventDate;
     @NotNull
     private LocationDto location;
     private Boolean paid = false;

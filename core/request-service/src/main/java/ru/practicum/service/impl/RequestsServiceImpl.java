@@ -45,7 +45,7 @@ public class RequestsServiceImpl implements RequestsService {
     public ParticipationRequestDto setRequest(Long eventId, Long userId) {
 
         EventFullDto event = eventService.getEventById(eventId);
-        if (Objects.equals(event.getInitiator().getId(), userId)) {
+        if (Objects.equals(event.getInitiator(), userId)) {
             throw new ConflictException("You can't send request to your own event");
         }
         if (!Objects.equals(event.getState(), EventState.PUBLISHED.toString())) {

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import ru.practicum.dto.event.enums.EventState;
 import lombok.Builder;
 import lombok.Value;
-import ru.practicum.dto.user.UserDto;
 
 import java.time.LocalDateTime;
 
@@ -13,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 public class EventLongDto {
     Long id;
-    UserDto initiator;
+    Long initiator;
     String title;
     String annotation;
     String description;

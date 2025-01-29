@@ -5,6 +5,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @ToString
@@ -18,7 +20,7 @@ public class UpdateEventAdminRequest {
     private Long category;
     @Size(min = 20, max = 7000, message = "The description field must be between 20 and 7000 characters long.")
     private String description;
-    private String eventDate;
+    private LocalDateTime eventDate;
     private LocationDto location;
     private Boolean paid;
     @PositiveOrZero
