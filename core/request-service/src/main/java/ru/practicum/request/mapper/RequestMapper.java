@@ -11,7 +11,7 @@ import ru.practicum.request.entity.Request;
 
 import java.time.LocalDateTime;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = org.mapstruct.MappingConstants.ComponentModel.SPRING)
 public abstract class RequestMapper {
 
     @Mapping(target = "event", expression = "java(request.getEventId())")

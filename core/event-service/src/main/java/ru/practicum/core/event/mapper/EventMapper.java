@@ -11,7 +11,7 @@ import ru.practicum.core.event.entity.Event;
 
 import java.time.LocalDateTime;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = org.mapstruct.MappingConstants.ComponentModel.SPRING)
 public abstract class EventMapper {
 
     @Mapping(target = "initiator", ignore = true)

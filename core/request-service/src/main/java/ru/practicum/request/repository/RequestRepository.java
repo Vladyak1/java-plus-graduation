@@ -39,4 +39,8 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
     List<Map<String, Long>> countByStatusAndEventsIds(
             @Param("status") String status, @Param("eventsIds") List<Long> eventsIds);
 
+    @Modifying
+    @Query("UPDATE Request r SET r.status = :status WHERE r.id IN :ids")
+    void updateStatusBatch(@Param("status") String status, @Param("ids") List<Long> ids);
+
 }

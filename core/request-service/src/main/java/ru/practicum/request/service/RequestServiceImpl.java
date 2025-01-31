@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -127,32 +128,34 @@ public class RequestServiceImpl implements RequestService {
                 requestRepository.findAllByIdInAndEventId(
                         params.eventRequestStatusUpdateRequest().requestIds(), params.eventId());
 
-        long confirmedRequestsCount = //Получение количества подвержденных запросов события.
+        long confirmedRequestsCount = //Получение количества подтвержденных запросов события.
                 requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, params.eventId());
 
-
         for (Request request : requestListOfEvent) {
-            if (request.getStatus() != RequestStatus.PENDING) { // Проверка что все реквесты для изменения - в режиме подтверждения
+            if (request.getStatus() != RequestStatus.PENDING) {
                 throw new ConflictException("Request status is not PENDING");
             }
-
-            if (confirmedRequestsCount >= event.participantLimit()) { // Проверка что количество подтвержденных реквестов не больше лимита
+            if (confirmedRequestsCount >= event.participantLimit()) {
                 throw new ConflictException("Participant limit exceeded");
             }
+        }
 
-            if (event.requestModeration()) { // Проверка необходимости модерации
-                String status = params.eventRequestStatusUpdateRequest().status().toString();
-                log.debug("State for update: {}", status);
-                requestRepository.updateStatus(
-                        status, request.getId());
-                Request modifiedRequest = requestRepository.findById(request.getId())
-                        .orElseThrow(() -> new NotFoundException("Request with id " + request.getId() + " not found"));
-                log.debug("Updated {} {}", modifiedRequest.getId(), modifiedRequest.getStatus());
-                if (params.eventRequestStatusUpdateRequest().status() == RequestStatus.CONFIRMED) { //увеличение счетчика подтвержденных событий, в случае потверждения
-                    confirmedRequestsCount++;
-                }
-                if (confirmedRequestsCount >= event.participantLimit()) { //проверка счетчика на превышение, отмена остальных реквестов
-                    requestRepository.cancelNewRequestsStatus(event.id());
+        // Если требуется модерация, обрабатываем все обновления разом
+        if (event.requestModeration()) {
+            RequestStatus newStatus = params.eventRequestStatusUpdateRequest().status();
+            List<Long> requestIds = requestListOfEvent.stream()
+                    .map(Request::getId)
+                    .collect(Collectors.toList());
+            // Пакетное обновление всех запросов с новым статусом
+            if (!requestIds.isEmpty()) {
+                requestRepository.updateStatusBatch(newStatus.toString(), requestIds);
+                // Если будут превышены подтверждающие запросы и лимит
+                if (newStatus == RequestStatus.CONFIRMED) {
+                    long newConfirmedCount = confirmedRequestsCount + requestIds.size();
+                    if (newConfirmedCount >= event.participantLimit()) {
+                        //Отменяем оставшиеся незавершенные запросы
+                        requestRepository.cancelNewRequestsStatus(event.id());
+                    }
                 }
             }
         }

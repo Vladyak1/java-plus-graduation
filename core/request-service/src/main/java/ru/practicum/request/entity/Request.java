@@ -12,25 +12,25 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 @EqualsAndHashCode(of = "id")
-@Table(name = "REQUESTS")
+@Table(name = "requests")
 public class Request {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "REQUEST_ID")
+    @Column(name = "request_id")
     private Long id;
 
-    @Column(name = "EVENT_ID")
+    @Column(name = "event_id")
     private Long eventId;
 
-    @Column(name = "REQUESTER_ID")
+    @Column(name = "requester_id")
     private Long requesterId;
 
-    @Column(name = "STATUS")
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
     private RequestStatus status;
 
-    @Column(name = "CREATED")
+    @Column(name = "created")
     private LocalDateTime created;
 
 }

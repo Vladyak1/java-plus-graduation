@@ -9,11 +9,11 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "COMPILATIONS")
+@Table(name = "compilations")
 public class Compilation {
 
     @Id
-    @Column(name = "COMPILATION_ID")
+    @Column(name = "compilation_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String title;
@@ -21,8 +21,8 @@ public class Compilation {
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
             name = "compilations_events",
-            joinColumns = @JoinColumn(name = "COMPILATION_ID"),
-            inverseJoinColumns = @JoinColumn(name = "EVENT_ID")
+            joinColumns = @JoinColumn(name = "compilation_id"),
+            inverseJoinColumns = @JoinColumn(name = "event_id")
     )
     private List<Event> events;
 }

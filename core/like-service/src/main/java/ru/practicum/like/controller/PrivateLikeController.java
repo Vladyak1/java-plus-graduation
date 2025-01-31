@@ -15,7 +15,6 @@ public class PrivateLikeController {
 
     private final LikeService likeService;
 
-
     @PutMapping("/users/{userId}/events/{eventId}/likes")
     public Long addEventLike(@PathVariable long userId, @PathVariable long eventId) {
         log.info("==> PUT. /users/{userId}/events/{eventId}/likes" +
@@ -59,10 +58,5 @@ public class PrivateLikeController {
                 locationId, userId, locationLikesCount);
         return locationLikesCount;
     }
-
-
-
-
-
 
 }

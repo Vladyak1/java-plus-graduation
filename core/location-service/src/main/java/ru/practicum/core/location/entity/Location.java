@@ -10,22 +10,22 @@ import lombok.Setter;
 @Getter
 @Setter
 @EqualsAndHashCode(of = {"id"})
-@Table(name = "LOCATIONS")
+@Table(name = "locations")
 @RequiredArgsConstructor
 public class Location {
 
     @Id
-    @Column(name = "LOCATION_ID")
+    @Column(name = "location_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "LAT")
+    @Column(name = "lat")
     private Float lat;
 
-    @Column(name = "LON")
+    @Column(name = "lon")
     private Float lon;
 
     @Transient
-    Long likes;
+    private Long likes;
 
 }

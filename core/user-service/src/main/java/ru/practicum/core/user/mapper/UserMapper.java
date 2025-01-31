@@ -8,7 +8,7 @@ import ru.practicum.core.api.dto.user.UserShortDto;
 import ru.practicum.core.user.entity.User;
 
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = org.mapstruct.MappingConstants.ComponentModel.SPRING)
 public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)

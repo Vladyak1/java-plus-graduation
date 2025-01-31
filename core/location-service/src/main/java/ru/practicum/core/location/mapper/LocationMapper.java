@@ -5,7 +5,7 @@ import ru.practicum.core.api.dto.location.LocationDto;
 import ru.practicum.core.location.entity.Location;
 
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = org.mapstruct.MappingConstants.ComponentModel.SPRING)
 public interface LocationMapper {
 
     LocationDto locationToLocationDto(Location location);
