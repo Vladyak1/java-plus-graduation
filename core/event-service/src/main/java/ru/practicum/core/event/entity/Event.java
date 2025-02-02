@@ -14,58 +14,58 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EqualsAndHashCode(of = {"id"})
-@Table(name = "events")
+@Table(name = "EVENTS")
 public class Event {
 
     @Id
-    @Column(name = "event_id")
+    @Column(name = "EVENT_ID")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "annotation")
+    @Column(name = "ANNOTATION")
     private String annotation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "CATEGORY_ID")
     private Category category;
 
     @Transient
     private Long confirmedRequests;
 
-    @Column(name = "created_on")
+    @Column(name = "CREATED_ON")
     private LocalDateTime createOn;
 
-    @Column(name = "description")
+    @Column(name = "DESCRIPTION")
     private String description;
 
-    @Column(name = "event_date")
+    @Column(name = "EVENT_DATE")
     private LocalDateTime eventDate;
 
-    @Column(name = "location_id")
+    @Column(name = "LOCATION_ID")
     private Long locationId;
 
     @Transient
     private LocationDto location;
 
-    @Column(name = "paid")
+    @Column(name = "PAID")
     private boolean paid;
 
-    @Column(name = "initiator_id")
+    @Column(name = "INITIATOR_ID")
     private Long initiatorId;
 
     @Transient
     private UserDto initiator;
 
-    @Column(name = "participant_limit")
+    @Column(name = "PARTICIPANT_LIMIT")
     private int participantLimit;
 
-    @Column(name = "published_on")
+    @Column(name = "PUBLISHED_ON")
     private LocalDateTime publishedOn;
 
-    @Column(name = "request_moderation")
+    @Column(name = "REQUEST_MODERATION")
     private boolean requestModeration;
 
-    @Column(name = "state")
+    @Column(name = "STATE")
     @Enumerated(EnumType.STRING)
     private EventState state;
 
@@ -73,9 +73,9 @@ public class Event {
     private String title;
 
     @Transient
-    private Long views;
+    Double rating;
 
     @Transient
-    private Long likes;
+    Long likes;
 
 }
