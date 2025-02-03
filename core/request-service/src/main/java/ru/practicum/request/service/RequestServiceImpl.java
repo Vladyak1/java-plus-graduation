@@ -39,8 +39,15 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto create(long userId, long eventId) {
+        log.info("CALL. userServiceClient.getById(userId) in create. userId = {}, eventId = {}", userId, eventId);
         UserDto user = userServiceClient.getById(userId);
+        log.info("FINISHED. userServiceClient.getById(userId) in create. userId = {}, eventId = {}", userId, eventId);
+        log.info("RESULT. userServiceClient.getById(userId) in create. userId = {}, eventId = {}", userId, eventId);
+
+        log.info("CALL. eventServiceClient.getById(eventId) in create. eventId = {}", eventId);
         EventFullDto event = eventServiceClient.getById(eventId);
+        log.info("FINISHED. eventServiceClient.getById(eventId) in create. eventId = {}", eventId);
+        log.debug("RESULT. eventServiceClient.getById(eventId) in create . {{}}", event);
 
         long confirmedRequests = requestRepository.countByStatusAndEventId(RequestStatus.CONFIRMED, eventId);
 
@@ -79,7 +86,10 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public ParticipationRequestDto cancel(long userId, long requestId) {
+        log.info("CALL. userServiceClient.checkExistence(userId) in cancel. userId = {}", userId);
         userServiceClient.checkExistence(userId);
+        log.info("FINISHED. userServiceClient.checkExistence(userId) in cancel. userId = {}", userId);
+
         Request request = requestRepository.findById(requestId)
                 .orElseThrow(() -> new NotFoundException("Request with id " + requestId + " not found"));
         request.setStatus(RequestStatus.CANCELED);
@@ -91,7 +101,11 @@ public class RequestServiceImpl implements RequestService {
     @Override
     public List<ParticipationRequestDto> getAllForOwnEvent(long userId, long eventId) {
 
+        log.info("CALL. userServiceClient.getById(userId) in getAllForOwnEvent. userId = {}", userId);
         UserDto user = userServiceClient.getById(userId);
+        log.info("FINISHED. userServiceClient.checkExistence(userId) in getAllForOwnEvent. userId = {}", userId);
+        log.debug("RESULT. userServiceClient.checkExistence(userId) in getAllForOwnEvent. {{}}", user);
+
         EventFullDto event = eventServiceClient.getById(eventId);
 
         log.info("getAllForOwnEvent. Пользователь полученный из сервиса user: {} ", user);
@@ -113,8 +127,15 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public EventRequestStatusUpdateResult updateStatus(PrivateUpdateRequestParams params) {
+
+        log.info("CALL. userServiceClient.getById(userId) in updateStatus. userId = {}", params.userId());
         UserDto user = userServiceClient.getById(params.userId());
+        log.info("FINISHED. userServiceClient.getById(userId) in updateStatus. userId = {}", params.userId());
+
+        log.info("CALL. eventServiceClient.getById(params.eventId()) in updateStatus. eventId = {}", params.eventId());
         EventFullDto event = eventServiceClient.getById(params.eventId());
+        log.info("FINISHED. eventServiceClient.getById(params.eventId()) in updateStatus. eventId = {}",
+                params.eventId());
 
         log.info("updateStatus. Пользователь полученный из сервиса user: {} ", user);
         log.info("updateStatus. Событие полученное из сервиса event: {} ", event);
@@ -199,5 +220,9 @@ public class RequestServiceImpl implements RequestService {
         return eventRequestsWithStatus;
     }
 
+    @Override
+    public boolean existsByEventIdAndRequesterIdAndStatus(long eventId, long requesterId, RequestStatus status) {
+        return requestRepository.existsByEventIdAndRequesterIdAndStatus(eventId, requesterId, status);
+    }
 
 }
