@@ -14,68 +14,68 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @EqualsAndHashCode(of = {"id"})
-@Table(name = "EVENTS")
+@Table(name = "events")
 public class Event {
 
     @Id
-    @Column(name = "EVENT_ID")
+    @Column(name = "event_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(name = "ANNOTATION")
+    @Column(name = "annotation")
     private String annotation;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CATEGORY_ID")
+    @JoinColumn(name = "category_id")
     private Category category;
 
     @Transient
     private Long confirmedRequests;
 
-    @Column(name = "CREATED_ON")
+    @Column(name = "created_on")
     private LocalDateTime createOn;
 
-    @Column(name = "DESCRIPTION")
+    @Column(name = "description")
     private String description;
 
-    @Column(name = "EVENT_DATE")
+    @Column(name = "event_date")
     private LocalDateTime eventDate;
 
-    @Column(name = "LOCATION_ID")
+    @Column(name = "location_id")
     private Long locationId;
 
     @Transient
     private LocationDto location;
 
-    @Column(name = "PAID")
+    @Column(name = "paid")
     private boolean paid;
 
-    @Column(name = "INITIATOR_ID")
+    @Column(name = "initiator_id")
     private Long initiatorId;
 
     @Transient
     private UserDto initiator;
 
-    @Column(name = "PARTICIPANT_LIMIT")
+    @Column(name = "participant_limit")
     private int participantLimit;
 
-    @Column(name = "PUBLISHED_ON")
+    @Column(name = "published_on")
     private LocalDateTime publishedOn;
 
-    @Column(name = "REQUEST_MODERATION")
+    @Column(name = "request_moderation")
     private boolean requestModeration;
 
-    @Column(name = "STATE")
+    @Column(name = "state")
     @Enumerated(EnumType.STRING)
     private EventState state;
 
-    @Column(name = "TITLE")
+    @Column(name = "title")
     private String title;
 
     @Transient
-    Double rating;
+    private Double rating;
 
     @Transient
-    Long likes;
+    private Long likes;
 
 }
