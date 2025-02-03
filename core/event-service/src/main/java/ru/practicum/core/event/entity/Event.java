@@ -69,11 +69,11 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventState state;
 
-    @Column(name = "TITLE")
+    @Column(name = "title")
     private String title;
 
     @Transient
-    private Long views;
+    private Double rating;
 
     @Transient
     private Long likes;
